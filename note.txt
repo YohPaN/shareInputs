@@ -1,0 +1,1 @@
+j'arrive a co le client et le server mais on dirait que le server ne rentre pas dans la boucle inifinie qui permet d'envoyer les inputs
