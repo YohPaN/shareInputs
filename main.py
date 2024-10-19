@@ -2,18 +2,24 @@ from config.config import Config
 import logging
 from server.server import Server
 from client.client import Client
+import sys
 
 config = Config()
 config.create_logger()
 logger = logging.getLogger(__name__)
 
-serverOrClient = "client"
+try:
+    serverOrClient = sys.argv[1]
+except IndexError:
+    raise IndexError('Add an argument ("server" or "client")')
+
 app = None
 
 if serverOrClient == "server":
-    app = Server(config)
-    print(app)
+    app = Server(config, logger)
+elif serverOrClient == "client":
+    app = Client(config, logger)
 else:
-    app = Client(config)
-print("ready to start app")
+    exit()
+
 app.start()

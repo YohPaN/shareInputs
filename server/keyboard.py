@@ -9,17 +9,16 @@ class KeyboardListener:
 
     def start_keyboard_listener(self):
         # Lancement des listeners pour le clavier
-        with keyboard.Listener(
+        return keyboard.Listener(
                 on_press=self.on_press,
                 on_release=self.on_release
-            ) as keyboard_listener:
-            keyboard_listener.join()
+            )
+           
 
     # Fonction pour capturer les événements du clavier
     def on_press(self, key):
         try:
-            data = key.char.encode('utf-8')
-            print(data)
+            data = key.char
         except AttributeError:
             data = key
 

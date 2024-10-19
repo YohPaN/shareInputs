@@ -22,16 +22,21 @@ class MainServer:
         self.server = server
         self.mouse_listener = MouseListener(self)
         self.keyboard_listener = KeyboardListener(self)
-        self.mouse_listener.start_mouse_listener()
-        self.keyboard_listener.start_keyboard_listener()
 
+    def start_main(self):
         # Start the thread that sends events in batches
         threading.Thread(target=self.send_buffered_events, daemon=True).start()
 
+        keyboard_listener = self.keyboard_listener.start_keyboard_listener()
+        mouse_listener = self.mouse_listener.start_mouse_listener()
+
+        with keyboard_listener, mouse_listener:
+            keyboard_listener.join()
+            mouse_listener.join()
+        
     # Function to send buffered events periodically
     def send_buffered_events(self):
         while True:
-            print('test')
             time.sleep(0.05)  # Send every 50 milliseconds
             with self.buffer_lock:
                 if self.event_buffer:

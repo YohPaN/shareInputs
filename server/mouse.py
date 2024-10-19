@@ -8,12 +8,11 @@ class MouseListener:
 
     def start_mouse_listener(self):
         # Lancement des listeners pour la souris
-        with mouse.Listener(
+        return mouse.Listener(
                 on_click=self.on_click,
                 on_move=self.on_move,
                 on_scroll=self.on_scroll
-            ) as mouse_listener:
-            mouse_listener.join()
+            )
 
     # Fonction pour capturer les événements de la souris
     def on_click(self, x, y, button, pressed):

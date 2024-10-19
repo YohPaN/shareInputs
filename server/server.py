@@ -9,7 +9,7 @@ class Server:
     max_connection = 1
     config = None
 
-    def __init__(self, config: Config):
+    def __init__(self, config: Config, logger):
         # Créer un socket pour écouter les connexions
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.config = config
@@ -22,7 +22,9 @@ class Server:
         # Accepter une connexion
         self.client_socket, self.client_address = self.sock.accept()
         print(f"Connexion établie avec {self.client_address}")
-        MainServer(self)
+        
+        main = MainServer(self)
+        main.start_main()
 
     def shutdown(self):
         self.client_socket.close()
