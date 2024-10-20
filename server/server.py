@@ -1,39 +1,52 @@
-import socket
-from config.config import Config
-from server.main import MainServer
+import asyncio
+from config.config import HOST, PORT
+import threading
+from server.mouse import MouseListener
+from server.keyboard import KeyboardListener
 
 class Server:
-    client_socket = None
-    client_address = None
-    sock = None
-    max_connection = 1
-    config = None
-
-    def __init__(self, config: Config, logger):
-        # Créer un socket pour écouter les connexions
-        self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.config = config
+    event_buffer = []
+    
+    def __init__(self, logger):
+        self.logger = logger
+        self.mouse_listener = MouseListener(self)
+        self.keyboard_listener = KeyboardListener(self)
 
     def start(self):
-        self.sock.bind((self.config.HOST, self.config.PORT))
-        self.sock.listen(self.max_connection)
-        print(f"Serveur en attente de connexion sur le port {self.sock.getsockname()}...")
+        self.logger.debug("starting the server")
 
-        # Accepter une connexion
-        self.client_socket, self.client_address = self.sock.accept()
-        print(f"Connexion établie avec {self.client_address}")
-        
-        try:
-            main = MainServer(self)
-            main.start_main()
-        except KeyboardInterrupt:
-            self.shutdown()
+        # TODO: mettre le thread dans un asyncio.to_thread()
+        threading.Thread(target=self.start_mouse_and_keyboard_listener, daemon=True).start()
 
-    def shutdown(self):
-        print("shuting down...")
-        self.client_socket.close()
-        self.sock.close()
-        print("Connection closed")
+        asyncio.run(self.main())
+
+    async def main(self):
+        server = await asyncio.start_server(self.handler, HOST, PORT)
+
+        addrs = ', '.join(str(sock.getsockname()) for sock in server.sockets)
+        self.logger.debug(f'Serving on {addrs}')
+
+        async with server:
+            await server.serve_forever()
+
+    # TODO: streamer directement les data au lieu de passer par un buffer
+    async def handler(self, reader, writer):
+        while True:
+            if self.event_buffer:
+                data_to_send = b''.join(self.event_buffer)
+                writer.write(data_to_send)
+                self.event_buffer.clear()
+
+    # Function to add events to the buffer
+    def buffer_event(self, event_type, *args):
+        event = {'type': event_type, 'args': args}
+        self.event_buffer.append(f"{event}/".encode('utf-8'))
 
 
+    async def start_mouse_and_keyboard_listener(self):
+        keyboard_listener = self.keyboard_listener.start_keyboard_listener()
+        mouse_listener = self.mouse_listener.start_mouse_listener()
 
+        with keyboard_listener, mouse_listener:
+            keyboard_listener.join()
+            mouse_listener.join()

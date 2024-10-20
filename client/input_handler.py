@@ -1,24 +1,26 @@
-from pynput.keyboard import Controller as KeyboardController, Key
-import json
+import ast
+import asyncio
 import pyautogui
-import logging
 
-class InputHandler:
-    # Configurer les contrôleurs pour simuler les actions
-    keyboard = KeyboardController()
+# Fonction pour interpréter les événements reçus
+# TODO: mettre une queue de asyncio ?
+async def read_data(data, logger):
+    try:
+        while '/' in data:
+            line, data = data.split('/', 1)
+            line = ast.literal_eval(line.strip())
+            asyncio.create_task(process_event(line))
+    except KeyError:
+        logger.warning("No data received, closing connection.", flush=True)
+        raise KeyError('No data received, closing connection.')
 
-    def __init__(self):
-        pass
-    # Fonction pour interpréter les événements reçus et simuler les actions
-    def process_event(self, data):
-        if data:
-            event_type = data['type']
-            args = data['args']
+# Process the event received
+async def process_event(line):
+    if line:
+        event_type = line['type']
+        args = line['args']
 
-            getattr(pyautogui, event_type)(*args)
-
-        else:
-            logging.warning("Empty or invalid data received, ignoring...")
+        await asyncio.to_thread(getattr(pyautogui, event_type), *args)
 
 
    
