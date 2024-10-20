@@ -1,8 +1,6 @@
 from pynput import mouse
 
 class MouseListener:
-    main = None
-
     def __init__(self, main):
         self.main = main
 
@@ -21,12 +19,12 @@ class MouseListener:
             if str(button) == "Button.right":
                 left_or_right = "right"
 
-            self.main.buffer_event("click", x, y, 1, 0.0, left_or_right)
+            self.main.send_data("click", x, y, 1, 0.0, left_or_right)
 
     def on_move(self, x, y):
-        self.main.buffer_event("moveTo", x, y)
+        self.main.send_data("moveTo", x, y)
 
     def on_scroll(self, x, y, dx, dy):
-        self.main.buffer_event("scroll", dy, x, y)
+        self.main.send_data("scroll", dy, x, y)
 
 

@@ -2,8 +2,6 @@
 from pynput import keyboard
 
 class KeyboardListener:
-    main = None
-
     def __init__(self, main):
         self.main = main
 
@@ -20,7 +18,7 @@ class KeyboardListener:
         except AttributeError:
             data = key
 
-        self.main.buffer_event("keyDown", data)
+        self.main.send_data("keyDown", data)
 
     def on_release(self, key):
         try:
@@ -28,4 +26,4 @@ class KeyboardListener:
         except AttributeError:
             data = key
 
-        self.main.buffer_event("keyUp", data)
+        self.main.send_data("keyUp", data)
