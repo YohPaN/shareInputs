@@ -1,23 +1,25 @@
-import socket
-from config.config import Config
-from client.main import MainClient
-from client.input_handler import InputHandler
-
+import asyncio
+from client.input_handler import read_data
+from config.config import PORT, SERVER_IP
 
 class Client:
-    client_socket = None
-    config = None
+    def __init__(self, logger):
+        self.logger = logger
 
-    def __init__(self, config: Config, logger):
-        # Créer un socket pour envoyer des données
-        self.client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.config = config
-
+    # Connect to the server
     def start(self):
-        self.client_socket.connect((self.config.SERVER_IP, self.config.PORT))
-        print("Connected")
-        inputHandler = InputHandler()
-        MainClient(self, inputHandler)
+        self.logger.debug("Starting the client...")
+        asyncio.run(self.tcp_client())
 
-    def shutdown(self):
-        self.client_socket.close()
+    # main loop for waiting data from server
+    async def tcp_client(self):
+        try:
+            reader, writer = await asyncio.open_connection(SERVER_IP, PORT)
+
+            while True:
+                data = await reader.read(10000)
+                await read_data(data.decode(), self.logger)
+                
+        except ConnectionError:
+            self.logger.warning('Impossible to connect to the server')
+            raise ConnectionError('Impossible to connect to the server')

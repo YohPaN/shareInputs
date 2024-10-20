@@ -7,7 +7,6 @@ class MouseListener:
         self.main = main
 
     def start_mouse_listener(self):
-        # Lancement des listeners pour la souris
         return mouse.Listener(
                 on_click=self.on_click,
                 on_move=self.on_move,

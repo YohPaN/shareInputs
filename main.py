@@ -1,11 +1,10 @@
-from config.config import Config
+from config.config import create_logger
 import logging
 from server.server import Server
 from client.client import Client
 import sys
 
-config = Config()
-config.create_logger()
+create_logger()
 logger = logging.getLogger(__name__)
 
 try:
@@ -16,9 +15,9 @@ except IndexError:
 app = None
 
 if serverOrClient == "server":
-    app = Server(config, logger)
+    app = Server(logger)
 elif serverOrClient == "client":
-    app = Client(config, logger)
+    app = Client(logger)
 else:
     exit()
 
