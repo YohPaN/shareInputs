@@ -1,3 +1,4 @@
+import ast
 class MainClient:
     client = None
     inputHandler = None
@@ -18,6 +19,7 @@ class MainClient:
 
             buffer += data  # Append data to the buffer
            
-            while '\n' in buffer:  # Process complete lines (events)
-                line, buffer = buffer.split('\n', 1)
+            while '/' in buffer:  # Process complete lines (events)
+                line, buffer = buffer.split('/', 1)
+                line = ast.literal_eval(line.strip())
                 self.inputHandler.process_event(data=line)

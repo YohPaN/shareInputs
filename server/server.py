@@ -23,12 +23,17 @@ class Server:
         self.client_socket, self.client_address = self.sock.accept()
         print(f"Connexion établie avec {self.client_address}")
         
-        main = MainServer(self)
-        main.start_main()
+        try:
+            main = MainServer(self)
+            main.start_main()
+        except KeyboardInterrupt:
+            self.shutdown()
 
     def shutdown(self):
+        print("shuting down...")
         self.client_socket.close()
         self.sock.close()
+        print("Connection closed")
 
 
 

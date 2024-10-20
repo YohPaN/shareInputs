@@ -40,8 +40,8 @@ class MainServer:
             time.sleep(0.05)  # Send every 50 milliseconds
             with self.buffer_lock:
                 if self.event_buffer:
-                    data_to_send = ''.join(self.event_buffer)  # Combine all events into one string
-                    self.server.client_socket.sendall(data_to_send.encode())  # Send the batch
+                    data_to_send = b''.join(self.event_buffer)  # Combine all events into one string
+                    self.server.client_socket.sendall(data_to_send)  # Send the batch
                     self.event_buffer.clear()  # Clear the buffer after sending
 
 
@@ -50,4 +50,4 @@ class MainServer:
         event = {'type': event_type, 'args': args}
 
         with self.buffer_lock:
-            self.event_buffer.append(json.dumps(event) + '\n')  # Add the event to the buffer
+            self.event_buffer.append(f"{event}/".encode('utf-8'))  # Add the event to the buffer
